@@ -1,25 +1,64 @@
-import logo from './logo.svg';
-import './App.css';
+import './Styles/App.css';
+import './Styles/map.css';
+import React, { Component } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, GeoJSON, Polyline } from 'react-leaflet'
+import dataHandler from "./jsonParser";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+/*
+  *Class Based Component Handles the State by fetching data locally from local GEOJSON*
+  *Render the GEOJSON using Leaflet Components.*
+*/ 
+class MapComp extends Component{
+  componentDidMount(){
+    dataHandler().then(
+      (data) => {
+        this.setState(
+          {
+            gJson : data
+          }
+        )
+      }
+    )
+  }
+  state = {
+    gJson:null
+  }
+
+  coordinates =[
+    [33.6844, 73.0479],
+    [25.3960, 68.3578]
+  ]
+  render(){
+    return (
+    <MapContainer center={[33.6844, 73.0479]} zoom={5} scrollWheelZoom={true}>
+    <TileLayer
+      attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    />
+    {
+      this.state.gJson && (
+        <GeoJSON
+          attribution="GeoJSON DATA of PK"
+          data={this.state.gJson}
+        />
+      )
+    }
+    {/* <Marker position={ [33.6844, 73.0479] }>
+      <Popup>
+        Islamabad. <br /> Capital of Pakistan.
+      </Popup>
+    </Marker> */}
+
+    <Polyline pathOptions = { {color: "red"} } positions={this.coordinates}   eventHandlers={{
+        click: () => {
+          alert("Line Connecting Islamabad to Hyderabad!")
+        },
+      }}>
+    </Polyline>
+    </MapContainer>
+    
+    )
+  }
 }
 
-export default App;
+export default MapComp;
